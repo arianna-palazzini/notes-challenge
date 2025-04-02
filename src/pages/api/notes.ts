@@ -42,7 +42,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   } else if (req.method === "PUT") {
     const { id, title, content } = req.body;
 
-    if (!id || !title || !content) {
+    if (!id || !title) {
       return res.status(400).json({ message: "Missing id, title, or content" });
     }
     await db.run(
