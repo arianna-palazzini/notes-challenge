@@ -1,5 +1,6 @@
 import { Note } from "@/utils/model";
 import React, { useEffect, useState } from "react";
+import { NoteCard } from "./NoteCard";
 
 const backgroundColors = ["#dabbfa", "#fff6e2", "#d7f3f5", "#f7d7d7"];
 const getRandomColor = () => {
@@ -9,9 +10,9 @@ const getRandomColor = () => {
 
 const NotesList = () => {
   const [notesList, setNotesList] = useState<Note[]>([]);
+  const [editingNote, setEditingNote] = useState<Note | null>(null);
 
   useEffect(() => {
-    import("./Note");
     const fetchNotes = async () => {
       const response = await fetch("/api/notes");
       const data = await response.json();
@@ -67,6 +68,7 @@ const NotesList = () => {
     };
   }, []);
 
+  //DELETE NOTE
   const handleDelete = async (id: number) => {
     await fetch(`/api/notes?id=${id}`, {
       method: "DELETE",
@@ -76,10 +78,8 @@ const NotesList = () => {
     setNotesList(notes);
   };
 
-  console.log(notesList);
-
-  const [editingNote, setEditingNote] = useState<Note | null>(null);
-
+  
+  //EDIT NOTE
   const handleEditNote = (event: CustomEvent) => {
     const { id, title, content } = event.detail;
     setEditingNote({
@@ -94,11 +94,13 @@ const NotesList = () => {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
+    if (editingNote) {
     const updatedNote: Note = {
-      ...editingNote!,
-      title: formData.get("title") as string,
+      ...editingNote,
+      title: (formData.get("title") as string) || "Untitled Note",
       content: formData.get("content") as string,
     };
+  
 
     const response = await fetch(`/api/notes?id=${editingNote!.id}`, {
       method: "PUT",
@@ -111,7 +113,7 @@ const NotesList = () => {
       const updatedNotesList = await updatedNotes.json();
       setNotesList(updatedNotesList);
       setEditingNote(null); // Reset editing note
-    }
+    }}
   };
 
   return (
@@ -119,17 +121,17 @@ const NotesList = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {notesList &&
           notesList.length > 0 &&
-          notesList.map((el) => {
+          notesList.map((el, index) => {
             const backgroundColor = getRandomColor();
             return (
-              <note-card
-                key={el.id}
+              <NoteCard
+                key={index}
                 id={String(el.id)}
                 title={el.title}
                 content={el.content}
                 date={el.date}
                 backgroundColor={backgroundColor}
-              ></note-card>
+              />
             );
           })}
       </div>
