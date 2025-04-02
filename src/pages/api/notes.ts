@@ -6,7 +6,7 @@ import { open } from "sqlite";
 // Apre la connessione al DB
 const openDb = async () => {
   return open({
-    filename: "./notes.db",
+    filename: "/tmp/notes.db",
     driver: sqlite3.Database,
   });
 };
